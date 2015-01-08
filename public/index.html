@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Online Spirit Level</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A free level app for measuring the angle of a surface with your smart phone. Use it to test whether your shelf is flat or your picture is hanging straight.">
+
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+    <div id="searchBar"></div>
+    <script type="text/text/x-handlebars-template" id="searchBarTmpl">
+      <input name="searchBar">
+      <ul class="list">
+      {{#each items}}
+        {{{this}}}
+      {{/each}}
+      </ul>
+    </script>
+    <script type="text/text/x-handlebars-template" id="itemTmpl">
+      <li class="item">
+        <img src="{{ profilePic }}" alt="{{ name }}">
+        <span>{{ name }}</span>
+      </li>
+    </script>
+    <script src="js/fuzzy.js"></script>
+    <script>
+      fuzzySearchBar('#searchBar', [
+        { name: "Fluffy", profilePic: "http://www.thatcutesite.com/uploads/2010/12/fluffy_white_dog.jpg" },
+        { name: "Fred", profilePic: "http://cdn.cutestpaw.com/wp-content/uploads/2011/11/Hamburger-l.jpg" },
+        { name: "Bill", profilePic: "http://origin.arstechnica.com/journals/science.media/Tai_Shan.jpg" },
+        { name: "Pinky", profilePic: "http://cutearoo.com/wp-content/uploads/2012/10/Hamster.jpg" }
+      ]);
+    </script>
+  </body>
+</html>

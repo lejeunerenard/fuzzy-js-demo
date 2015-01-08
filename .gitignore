@@ -1,0 +1,13 @@
+bower_components/
+build/
+node_modules/
+# Created by https://www.gitignore.io
+
+### vim ###
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+

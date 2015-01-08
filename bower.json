@@ -1,0 +1,24 @@
+{
+  "name": "fuzzy.js",
+  "version": "0.0.1",
+  "authors": [
+    "Sean Zellmer <sean@lejeunerenard.com>"
+  ],
+  "description": "Demo of ngram fuzzy searching",
+  "main": "public/index.html",
+  "keywords": [
+    "fuzzy searching",
+    "ngram"
+  ],
+  "license": "none",
+  "homepage": "talks.haxiom.io/fuzzy/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+  }
+}
