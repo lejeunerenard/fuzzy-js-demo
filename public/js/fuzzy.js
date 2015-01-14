@@ -898,7 +898,7 @@ var __module9__ = (function() {
 
   var $0 = $$.length - 1;
   switch (yystate) {
-  case 1: yy.prepareProgram($$[$0-1].statements, true); return $$[$0-1]; 
+  case 1: yy.prepareProgram($$[$0-1].statements, true); return $$[$0-1];
   break;
   case 2:this.$ = new yy.ProgramNode(yy.prepareProgram($$[$0]), {}, this._$);
   break;
@@ -968,7 +968,7 @@ var __module9__ = (function() {
   break;
   case 35:this.$ = new yy.IdNode($$[$0], this._$);
   break;
-  case 36: $$[$0-2].push({part: $$[$0], separator: $$[$0-1]}); this.$ = $$[$0-2]; 
+  case 36: $$[$0-2].push({part: $$[$0], separator: $$[$0-1]}); this.$ = $$[$0-2];
   break;
   case 37:this.$ = [{part: $$[$0]}];
   break;
@@ -1285,22 +1285,22 @@ var __module9__ = (function() {
                                        this.begin("mu");
                                      }
                                      if(yy_.yytext) return 12;
-                                   
+
   break;
   case 1:return 12;
   break;
   case 2:
                                      this.popState();
                                      return 12;
-                                   
+
   break;
   case 3:
                                     yy_.yytext = yy_.yytext.substr(5, yy_.yyleng-9);
                                     this.popState();
                                     return 15;
-                                   
+
   break;
-  case 4: return 12; 
+  case 4: return 12;
   break;
   case 5:strip(0,4); this.popState(); return 13;
   break;
@@ -1308,13 +1308,13 @@ var __module9__ = (function() {
   break;
   case 7:return 46;
   break;
-  case 8: return 16; 
+  case 8: return 16;
   break;
   case 9:
                                     this.popState();
                                     this.begin('raw');
                                     return 18;
-                                   
+
   break;
   case 10:return 34;
   break;
@@ -3090,7 +3090,11 @@ this.fuzzySearchBar = (function ( window, document, Handlebars, undefined ) {
   };
 
   function NGram ( str, n ) {
-    this.str = str || error( "NGrams require a string" );
+    this.str = str;
+    if ( ! this.str ) {
+      throw new Error( "NGrams require a string" );
+    }
+
     this.n = n || 2;
     this.vector = {};
 
@@ -3106,23 +3110,48 @@ this.fuzzySearchBar = (function ( window, document, Handlebars, undefined ) {
         this.vector[ key ] = this.vector[ key ] || 0;
         this.vector[ key ] += 1;
       }
-      console.log( this.vector );
+    },
+    // Calculate the Similarity between this NGram and another
+    cosSim: function( other ) {
+      if ( !( other instanceof NGram ) ) {
+        throw new Error("NGrams can only be compared to NGrams");
+      }
+      return this.dot( other ) / (Object.keys(this.vector).length * Object.keys(other.vector).length);
+    },
+    // Dot product between two NGrams
+    dot: function( other ) {
+      var dotProd = 0;
+      for ( var k in this.vector ) {
+        if ( other.vector[k] === undefined ) {
+          other.vector[k] = 0;
+        }
+        dotProd = dotProd + this.vector[k] * other.vector[k];
+      }
+      return dotProd;
     }
   };
 
   function Item ( name, profilePic ) {
     this.name = name;
     this.profilePic = profilePic;
+    this.ngram = new NGram(this.name);
 
     this.init();
   }
 
   Item.prototype = {
     init: function() {
-      this.toNGram();
     },
-    toNGram: function() {
-      return new NGram(this.name);
+    toNGram: function(force) {
+      // Load cached or create n-gram
+      this.ngram = this.ngram || new NGram(this.name);
+
+      // Force reload the n-gram
+      if ( force ) {
+        this.ngram = new NGram(this.name);
+      }
+
+      return this.ngram;
     },
     render: function() {
       this.tmpl = this.tmpl || Handlebars.compile( $("#itemTmpl").innerHTML );
@@ -3139,30 +3168,73 @@ this.fuzzySearchBar = (function ( window, document, Handlebars, undefined ) {
     this.element = element;
     this.$element = $(element);
     this.items = items;
+    this.displayItems = this.items;
 
     this.init();
   }
 
   SearchBar.prototype = {
     init: function () {
+      var that = this;
       // Set up items
-      this.items = this.items.map(function( el ) {
+      that.items = that.items.map(function( el ) {
         return new Item( el.name, el.profilePic );
       });
+      that.displayItems = that.items;
 
       // Render
-      this.render();
+      that.render();
 
       // Events
+      that.$element.querySelector( "input[name='searchBar']" )
+        .addEventListener("input", function()
+      {
+        if ( this.value.length >= 2 ) {
+          that.displayItems = that.search( this.value );
+        } else {
+          that.displayItems = that.items;
+        }
+        that.renderResults();
+      });
     },
     // render
     render: function () {
       this.tmpl = this.tmpl || Handlebars.compile( $("#searchBarTmpl").innerHTML );
       this.$element.innerHTML = this.tmpl({
-        items: this.items
+        searchResults: this.renderResults()
       });
     },
-    search: function () {
+    renderResults: function () {
+      this.resultsTmpl = this.resultsTmpl || Handlebars.compile( $("#searchResultsTmpl").innerHTML );
+      var html = this.resultsTmpl({
+        items: this.displayItems
+      });
+
+      if ( this.$element.querySelector(".list") ) {
+        this.$element.querySelector(".list").innerHTML = html;
+      }
+      return html;
+    },
+    search: function ( searchStr ) {
+      var searchStrNGram = new NGram( searchStr );
+
+      return this.items.sort(function( a, b ) {
+        // @TODO cache the cosSim between an element and searchStrNGram
+        var aCosSim = a.ngram.cosSim( searchStrNGram );
+        var bCosSim = b.ngram.cosSim( searchStrNGram );
+
+        if ( aCosSim < bCosSim ) {
+          return 1;
+        }
+        if ( aCosSim > bCosSim ) {
+          return -1;
+        }
+
+        // Default to being equal
+        return 0;
+      }).filter(function ( el ) {
+        return !! el.ngram.cosSim( searchStrNGram );
+      });
     }
   };
   return function ( element, items ) {

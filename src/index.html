@@ -10,15 +10,18 @@
   </head>
   <body>
     <div id="searchBar"></div>
-    <script type="text/text/x-handlebars-template" id="searchBarTmpl">
+    <script type="text/x-handlebars-template" id="searchBarTmpl">
       <input name="searchBar">
       <ul class="list">
+      {{{searchResults}}}
+      </ul>
+    </script>
+    <script type="text/x-handlebars-template" id="searchResultsTmpl">
       {{#each items}}
         {{{this}}}
       {{/each}}
-      </ul>
     </script>
-    <script type="text/text/x-handlebars-template" id="itemTmpl">
+    <script type="text/x-handlebars-template" id="itemTmpl">
       <li class="item">
         <img src="{{ profilePic }}" alt="{{ name }}">
         <span>{{ name }}</span>
@@ -28,8 +31,8 @@
     <script>
       fuzzySearchBar('#searchBar', [
         { name: "Fluffy", profilePic: "http://www.thatcutesite.com/uploads/2010/12/fluffy_white_dog.jpg" },
-        { name: "Fred", profilePic: "http://cdn.cutestpaw.com/wp-content/uploads/2011/11/Hamburger-l.jpg" },
-        { name: "Bill", profilePic: "http://origin.arstechnica.com/journals/science.media/Tai_Shan.jpg" },
+        { name: "Fluffs", profilePic: "http://cdn.cutestpaw.com/wp-content/uploads/2011/11/Hamburger-l.jpg" },
+        { name: "Federic", profilePic: "http://origin.arstechnica.com/journals/science.media/Tai_Shan.jpg" },
         { name: "Pinky", profilePic: "http://cutearoo.com/wp-content/uploads/2012/10/Hamster.jpg" }
       ]);
     </script>
